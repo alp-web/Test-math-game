@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Math Challenge</title>
+  <title>Smart Math Challenge</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -28,7 +28,6 @@
       margin: auto;
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease;
     }
 
     h1 {
@@ -82,7 +81,7 @@
   </style>
 </head>
 <body>
-  <h1>🧠 Smart Math Game [Created by Melaku]</h1>
+  <h1>🧠 Smart Math Game</h1>
   <div id="leaderboard">🏆 Top Scorer: <span id="topScorer">N/A</span></div>
 
   <div id="start-box" class="box">
@@ -118,26 +117,10 @@
     <button onclick="location.reload()">Challenge Again</button>
     <button onclick="returnToStart()">Exit</button>
   </div>
-<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
-<script>
-  const correctSound = document.getElementById('correctSound');
-  const wrongSound = document.getElementById('wrongSound');
-
-  // Preload/unlock audio after user interaction
-  function unlockAudio() {
-    correctSound.play().then(() => correctSound.pause());
-    wrongSound.play().then(() => wrongSound.pause());
-  }
-
-  document.querySelector('button').addEventListener('click', () => {
-    unlockAudio();
-    // For demo: play correct sound on click
-    correctSound.play();
-  });
-</script>
-<button>Test Sound</button>
+  <!-- Working CORS-friendly audio from Google -->
+  <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
@@ -152,6 +135,12 @@
     document.getElementById('topScorer').innerText = topScorer;
 
     function startGame() {
+      // Unlock audio on user interaction
+      correctSound.play().then(() => correctSound.pause());
+      wrongSound.play().then(() => wrongSound.pause());
+
+      questions = [];
+      currentIndex = 0;
       const name = document.getElementById('playerName').value.trim();
       if (!name) return alert('Please enter your name.');
       timerMode = document.getElementById('timerMode').value;
@@ -159,9 +148,6 @@
       document.getElementById('start-box').style.display = 'none';
       document.getElementById('game-box').style.display = 'block';
       if (timerMode === 'total') startTotalTimer();
-      // Preload and unlock audio
-      correctSound.play().then(() => correctSound.pause());
-      wrongSound.play().then(() => wrongSound.pause());
       showQuestion();
     }
 
@@ -276,6 +262,7 @@
     }
 
     function endGame() {
+      clearInterval(timer);
       if (confirm('End game and lose progress?')) location.reload();
     }
 
