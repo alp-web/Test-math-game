@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <title>Math Game</title>
+  <title>Math Game Challenge</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -26,20 +26,24 @@
       max-width: 450px;
       margin: auto;
       transition: all 0.3s ease-in-out;
+      text-align: left;
     }
 
     #question {
       font-size: 2em;
       margin-bottom: 15px;
       font-weight: bold;
+      text-align: center;
     }
 
-    input[type='number'] {
+    input[type='number'], input[type='text'] {
       padding: 12px;
       font-size: 1.3em;
-      width: 120px;
+      width: 100%;
+      box-sizing: border-box;
       border-radius: 8px;
       border: 1px solid #ccc;
+      margin-bottom: 10px;
     }
 
     button {
@@ -52,6 +56,7 @@
       color: white;
       cursor: pointer;
       transition: background 0.3s ease;
+      width: 100%;
     }
 
     button:hover {
@@ -63,18 +68,24 @@
     #timer {
       margin-top: 20px;
       font-size: 1.2em;
+      text-align: center;
     }
 
     #end-box {
       display: none;
+      max-height: 70vh;
+      overflow-y: auto;
     }
 
     .btn-group {
       margin-top: 20px;
+      text-align: center;
     }
 
     .btn-group button {
       margin: 8px;
+      width: auto;
+      padding: 10px 30px;
     }
 
     select {
@@ -82,6 +93,48 @@
       font-size: 1em;
       border-radius: 8px;
       border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #leaderboard {
+      max-width: 450px;
+      margin: auto  auto 40px auto;
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    #leaderboard h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #leaderboard ol {
+      padding-left: 20px;
+      font-size: 1.1em;
+    }
+
+    #review-list {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+
+    #review-list table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    #review-list th, #review-list td {
+      border: 1px solid #aaa;
+      padding: 6px 8px;
+      text-align: center;
     }
 
     @media (max-width: 500px) {
@@ -96,22 +149,30 @@
   </style>
 </head>
 <body>
-  <h1>🧠 Challenge Your Math!</h1>
+  <h1>🧠 Math Game Challenge</h1>
+
+  <div id="leaderboard">
+    <h2>🏆 Top Scorers</h2>
+    <ol id="top-scorers-list">
+      <!-- leaderboard filled by JS -->
+    </ol>
+  </div>
 
   <div id="difficulty-box">
-    <p>Select Difficulty:</p>
+    <p><strong>Enter Your Name:</strong></p>
+    <input type="text" id="playerName" placeholder="Your Name" maxlength="20" autocomplete="off" />
+    <p><strong>Select Difficulty:</strong></p>
     <select id="difficulty">
       <option value="easy">Easy (+, -)</option>
       <option value="medium">Medium (+, -, ×)</option>
       <option value="hard">Hard (+, -, ×, ÷)</option>
     </select>
-    <br />
     <button onclick="startGame()">Start Game</button>
   </div>
 
   <div id="game-box" style="display: none;">
     <div id="question"></div>
-    <input type="number" id="answer" />
+    <input type="number" id="answer" autocomplete="off" />
     <button onclick="checkAnswer()">Submit</button>
     <div id="result"></div>
     <div id="score">Score: 0/0</div>
@@ -123,6 +184,24 @@
   <div id="end-box">
     <h2>🎉 Game Over!</h2>
     <p id="final-score"></p>
+
+    <div id="review-list">
+      <h3>Your Answers:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Question</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+          </tr>
+        </thead>
+        <tbody id="review-body">
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
     <div class="btn-group">
       <button onclick="restartGame()">Challenge Again</button>
       <button onclick="endGame()">End Game</button>
@@ -147,17 +226,46 @@
     let timer;
     const maxQuestions = 10;
     let difficulty = "easy";
+    let playerName = "";
+    let history = [];
+
+    // Load leaderboard from localStorage or init empty array
+    let leaderboard = JSON.parse(localStorage.getItem("mathGameLeaderboard")) || [];
+
+    function updateLeaderboard() {
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 10); // keep top 10
+
+      const list = document.getElementById("top-scorers-list");
+      list.innerHTML = "";
+      leaderboard.forEach((entry, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${entry.name} — ${entry.score} coins`;
+        list.appendChild(li);
+      });
+
+      localStorage.setItem("mathGameLeaderboard", JSON.stringify(leaderboard));
+    }
+
+    updateLeaderboard();
 
     function startGame() {
+      playerName = document.getElementById("playerName").value.trim();
+      if (!playerName) {
+        alert("Please enter your name!");
+        return;
+      }
       difficulty = document.getElementById("difficulty").value;
       document.getElementById("difficulty-box").style.display = "none";
+      document.getElementById("leaderboard").style.display = "none";
       document.getElementById("game-box").style.display = "block";
       correctCount = 0;
       totalQuestions = 0;
+      history = [];
       document.getElementById("score").innerText = "Score: 0/0";
       newQuestion();
       document.getElementById("answer").focus();
-      console.log("Game started with difficulty:", difficulty);
+      console.log("Game started for:", playerName, "Difficulty:", difficulty);
     }
 
     function getOperatorsByDifficulty() {
@@ -214,7 +322,13 @@
 
     function checkAnswer() {
       clearInterval(timer);
-      const userAns = parseFloat(document.getElementById("answer").value);
+      const userAnsRaw = document.getElementById("answer").value.trim();
+      if (userAnsRaw === "") {
+        alert("Please enter an answer!");
+        return;
+      }
+      const userAns = parseFloat(userAnsRaw);
+
       let correctAns;
       switch (operator) {
         case "+":
@@ -232,6 +346,15 @@
       }
 
       totalQuestions++;
+
+      // Save question history for review later
+      history.push({
+        question: `${num1} ${operator} ${num2}`,
+        userAnswer: userAnsRaw,
+        correctAnswer: correctAns,
+        correct: Math.abs(userAns - correctAns) < 0.01,
+      });
+
       if (Math.abs(userAns - correctAns) < 0.01) {
         correctCount++;
         document.getElementById("result").innerText = "✅ Correct!";
@@ -242,6 +365,7 @@
       }
 
       document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
+
       if (totalQuestions < maxQuestions) {
         setTimeout(newQuestion, 1200);
       } else {
@@ -261,6 +385,22 @@
           document.getElementById("result").innerText = "⏰ Time's up!";
           document.getElementById("wrongSound").play();
           totalQuestions++;
+
+          // Mark unanswered question in history
+          history.push({
+            question: `${num1} ${operator} ${num2}`,
+            userAnswer: "No Answer",
+            correctAnswer: (function() {
+              switch(operator) {
+                case "+": return num1 + num2;
+                case "-": return num1 - num2;
+                case "*": return num1 * num2;
+                case "/": return num1 / num2;
+              }
+            })(),
+            correct: false,
+          });
+
           document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
           if (totalQuestions < maxQuestions) {
             setTimeout(newQuestion, 1200);
@@ -276,14 +416,39 @@
       document.getElementById("game-box").style.display = "none";
       document.getElementById("end-box").style.display = "block";
       document.getElementById("final-score").innerText = `Your final score: ${correctCount} out of ${totalQuestions}`;
+
+      // Update leaderboard
+      leaderboard.push({ name: playerName, score: correctCount });
+      updateLeaderboard();
+
+      // Fill review list
+      const tbody = document.getElementById("review-body");
+      tbody.innerHTML = "";
+      history.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.question}</td>
+          <td>${item.userAnswer}</td>
+          <td>${item.correctAnswer}</td>
+        `;
+        if (item.correct) {
+          tr.style.backgroundColor = "#d4edda"; // light green
+        } else {
+          tr.style.backgroundColor = "#f8d7da"; // light red
+        }
+        tbody.appendChild(tr);
+      });
     }
 
     function restartGame() {
       correctCount = 0;
       totalQuestions = 0;
+      history = [];
       document.getElementById("score").innerText = `Score: 0/0`;
       document.getElementById("end-box").style.display = "none";
       document.getElementById("game-box").style.display = "block";
+      document.getElementById("answer").focus();
       newQuestion();
     }
 
