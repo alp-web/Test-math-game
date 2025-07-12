@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,8 +135,6 @@
     document.getElementById('topScorer').innerText = topScorer;
 
     function startGame() {
-      questions = [];  // Clear previous questions before generating new ones
-      currentIndex = 0; // Reset current index
       const name = document.getElementById('playerName').value.trim();
       if (!name) return alert('Please enter your name.');
       timerMode = document.getElementById('timerMode').value;
@@ -256,7 +256,6 @@
     }
 
     function endGame() {
-      clearInterval(timer);
       if (confirm('End game and lose progress?')) location.reload();
     }
 
