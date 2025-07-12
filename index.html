@@ -120,7 +120,7 @@
   </div>
 
   <audio id="correctSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/correct.mp3"></audio>
-<audio id="wrongSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/Wrong.mp3"></audio>
+  <audio id="wrongSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/Wrong.mp3"></audio>
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
@@ -142,6 +142,9 @@
       document.getElementById('start-box').style.display = 'none';
       document.getElementById('game-box').style.display = 'block';
       if (timerMode === 'total') startTotalTimer();
+      // Preload and unlock audio
+      correctSound.play().then(() => correctSound.pause());
+      wrongSound.play().then(() => wrongSound.pause());
       showQuestion();
     }
 
