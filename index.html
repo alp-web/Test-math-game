@@ -119,8 +119,8 @@
     <button onclick="returnToStart()">Exit</button>
   </div>
 
-  <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7e4e2ad246.mp3?filename=success-1-6297.mp3"></audio>
-  <audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_21c02c1540.mp3?filename=error-1-47204.mp3"></audio>
+  <audio id="correctSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/correct.mp3"></audio>
+<audio id="wrongSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/Wrong.mp3"></audio>
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
@@ -128,6 +128,8 @@
 
     const correctSound = document.getElementById('correctSound');
     const wrongSound = document.getElementById('wrongSound');
+    correctSound.volume = 1.0;
+    wrongSound.volume = 1.0;
 
     const topScorer = localStorage.getItem('topScorer') || 'N/A';
     document.getElementById('topScorer').innerText = topScorer;
