@@ -1,284 +1,162 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Math Game Challenge</title>
+  <title>Smart Math Challenge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #cceeff, #e6ffe6);
+      margin: 0;
+      padding: 20px;
       text-align: center;
-      padding: 30px;
+      background: url('https://www.transparenttextures.com/patterns/school.png'), linear-gradient(270deg, #e0f7fa, #e8f5e9);
+      background-size: cover;
+      animation: gradientBG 20s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .box {
+      background: rgba(255,255,255,0.95);
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
     }
 
     h1 {
-      color: #2c3e50;
-      font-size: 2.8em;
-      margin-bottom: 10px;
+      color: #2e7d32;
     }
 
-    #game-box,
-    #end-box {
-      background: #ffffffdd;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      max-width: 450px;
-      margin: auto;
-      transition: all 0.3s ease-in-out;
-      text-align: left;
-    }
-
-    #question {
-      font-size: 2em;
-      margin-bottom: 15px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    input[type='number'], input[type='text'] {
+    input, select {
+      width: 100%;
       padding: 12px;
-      font-size: 1.3em;
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
-    }
-
-    button {
-      padding: 10px 22px;
-      font-size: 1.1em;
-      margin-top: 15px;
-      border: none;
-      border-radius: 10px;
-      background-color: #3498db;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    #result,
-    #score,
-    #timer {
-      margin-top: 20px;
-      font-size: 1.2em;
-      text-align: center;
-    }
-
-    #end-box {
-      display: none;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .btn-group {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    .btn-group button {
-      margin: 8px;
-      width: auto;
-      padding: 10px 30px;
-    }
-
-    select {
-      padding: 8px;
+      margin: 10px 0;
       font-size: 1em;
       border-radius: 8px;
       border: 1px solid #ccc;
-      width: 100%;
-      box-sizing: border-box;
+    }
+
+    button {
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: white;
+      padding: 12px 20px;
+      margin: 10px 5px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #43e97b, #38f9d7);
+    }
+
+    #question {
+      font-size: 1.5em;
+      margin: 20px 0;
+    }
+
+    #score {
+      margin-top: 15px;
+      font-weight: bold;
     }
 
     #leaderboard {
-      max-width: 450px;
-      margin: auto  auto 40px auto;
-      background: #fff;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      text-align: left;
-    }
-
-    #leaderboard h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    #leaderboard ol {
-      padding-left: 20px;
+      margin: 10px 0;
       font-size: 1.1em;
+      color: #00796b;
     }
 
-    #review-list {
-      margin-top: 20px;
-      max-height: 300px;
-      overflow-y: auto;
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-    }
-
-    #review-list table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9em;
-    }
-
-    #review-list th, #review-list td {
-      border: 1px solid #aaa;
-      padding: 6px 8px;
-      text-align: center;
-    }
-
-    @media (max-width: 500px) {
-      body {
-        padding: 10px;
-      }
-
-      #game-box {
-        width: 100%;
-      }
+    #game-box, #end-box {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>🧠 Math Game Challenge</h1>
+  <h1>🧠 Smart Math Game</h1>
+  <div id="leaderboard">🏆 Top Scorer: <span id="topScorer">N/A</span></div>
 
-  <div id="leaderboard">
-    <h2>🏆 Top Scorers</h2>
-    <ol id="top-scorers-list">
-      <!-- leaderboard filled by JS -->
-    </ol>
-  </div>
-
-  <div id="difficulty-box">
-    <p><strong>Enter Your Name:</strong></p>
-    <input type="text" id="playerName" placeholder="Your Name" maxlength="20" autocomplete="off" />
-    <p><strong>Select Difficulty:</strong></p>
+  <div id="start-box" class="box">
+    <input type="text" id="playerName" placeholder="Enter your name" />
     <select id="difficulty">
       <option value="easy">Easy (+, -)</option>
       <option value="medium">Medium (+, -, ×)</option>
       <option value="hard">Hard (+, -, ×, ÷)</option>
     </select>
+    <select id="timerMode">
+      <option value="per">Timer per Question (15s)</option>
+      <option value="total">Timer for Full Game (150s)</option>
+    </select>
     <button onclick="startGame()">Start Game</button>
   </div>
 
-  <div id="game-box" style="display: none;">
+  <div id="game-box" class="box">
     <div id="question"></div>
-    <input type="number" id="answer" autocomplete="off" />
-    <button onclick="checkAnswer()">Submit</button>
-    <div id="result"></div>
-    <div id="score">Score: 0/0</div>
-    <div id="timer">
-      ⏱ Time left: <span id="time">15</span> sec
-    </div>
-  </div>
-
-  <div id="end-box">
-    <h2>🎉 Game Over!</h2>
-    <p id="final-score"></p>
-
-    <div id="review-list">
-      <h3>Your Answers:</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Question</th>
-            <th>Your Answer</th>
-            <th>Correct Answer</th>
-          </tr>
-        </thead>
-        <tbody id="review-body">
-          <!-- filled by JS -->
-        </tbody>
-      </table>
-    </div>
-
-    <div class="btn-group">
-      <button onclick="restartGame()">Challenge Again</button>
+    <input type="number" id="answer" placeholder="Your answer" />
+    <div id="timer">Time left: <span id="time">15</span>s</div>
+    <div>
+      <button id="prevBtn" onclick="previousQuestion()">Previous</button>
+      <button id="nextBtn" onclick="nextQuestion()">Next</button>
+      <button id="submitBtn" onclick="submitGame()">Submit</button>
       <button onclick="endGame()">End Game</button>
     </div>
+    <div id="score">Question 1 of 10</div>
   </div>
 
-  <!-- Sound Effects -->
-  <audio
-    id="correctSound"
-    src="https://www.soundjay.com/button/beep-07.wav"
-  ></audio>
-  <audio
-    id="wrongSound"
-    src="https://www.soundjay.com/button/beep-10.wav"
-  ></audio>
+  <div id="end-box" class="box">
+    <h2>Game Over</h2>
+    <div id="final-score"></div>
+    <button onclick="location.reload()">Challenge Again</button>
+    <button onclick="returnToStart()">Exit</button>
+  </div>
+
+  <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7e4e2ad246.mp3?filename=success-1-6297.mp3"></audio>
+  <audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_21c02c1540.mp3?filename=error-1-47204.mp3"></audio>
 
   <script>
-    let num1, num2, operator;
-    let correctCount = 0;
-    let totalQuestions = 0;
-    let timeLeft = 15;
-    let timer;
-    const maxQuestions = 10;
-    let difficulty = "easy";
-    let playerName = "";
-    let history = [];
+    let questions = [], currentIndex = 0, timer, timerMode = 'per';
+    let timePerQuestion = 15, totalGameTime = 150, gameTimeLeft = 150;
 
-    // Load leaderboard from localStorage or init empty array
-    let leaderboard = JSON.parse(localStorage.getItem("mathGameLeaderboard")) || [];
+    const correctSound = document.getElementById('correctSound');
+    const wrongSound = document.getElementById('wrongSound');
 
-    function updateLeaderboard() {
-      leaderboard.sort((a, b) => b.score - a.score);
-      leaderboard = leaderboard.slice(0, 10); // keep top 10
-
-      const list = document.getElementById("top-scorers-list");
-      list.innerHTML = "";
-      leaderboard.forEach((entry, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${entry.name} — ${entry.score} coins`;
-        list.appendChild(li);
-      });
-
-      localStorage.setItem("mathGameLeaderboard", JSON.stringify(leaderboard));
-    }
-
-    updateLeaderboard();
+    const topScorer = localStorage.getItem('topScorer') || 'N/A';
+    document.getElementById('topScorer').innerText = topScorer;
 
     function startGame() {
-      playerName = document.getElementById("playerName").value.trim();
-      if (!playerName) {
-        alert("Please enter your name!");
-        return;
-      }
-      difficulty = document.getElementById("difficulty").value;
-      document.getElementById("difficulty-box").style.display = "none";
-      document.getElementById("leaderboard").style.display = "none";
-      document.getElementById("game-box").style.display = "block";
-      correctCount = 0;
-      totalQuestions = 0;
-      history = [];
-      document.getElementById("score").innerText = "Score: 0/0";
-      newQuestion();
-      document.getElementById("answer").focus();
-      console.log("Game started for:", playerName, "Difficulty:", difficulty);
+      questions = [];  // Clear previous questions before generating new ones
+      currentIndex = 0; // Reset current index
+      const name = document.getElementById('playerName').value.trim();
+      if (!name) return alert('Please enter your name.');
+      timerMode = document.getElementById('timerMode').value;
+      generateQuestions(document.getElementById('difficulty').value);
+      document.getElementById('start-box').style.display = 'none';
+      document.getElementById('game-box').style.display = 'block';
+      if (timerMode === 'total') startTotalTimer();
+      showQuestion();
     }
 
-    function getOperatorsByDifficulty() {
-      if (difficulty === "easy") return ["+", "-"];
-      if (difficulty === "medium") return ["+", "-", "*"];
-      return ["+", "-", "*", "/"];
-    }
-
-    function generateNumbers(op) {
-      if (op === "*") {
-        return [rand(1, 12), rand(1, 12)];
-      } else {
-        return [rand(1, 100), rand(1, 100)];
+    function generateQuestions(level) {
+      const ops = level === 'easy' ? ['+', '-'] : level === 'medium' ? ['+', '-', '*'] : ['+', '-', '*', '/'];
+      for (let i = 0; i < 10; i++) {
+        let op = ops[Math.floor(Math.random() * ops.length)];
+        let n1 = op === '*' ? rand(1, 12) : rand(1, 100);
+        let n2 = rand(1, 100);
+        if (op === '-') [n1, n2] = n1 < n2 ? [n2, n1] : [n1, n2];
+        if (op === '/') {
+          n2 = rand(1, 12);
+          n1 = n2 * rand(1, 12);
+        }
+        questions.push({ n1, n2, op, user: '' });
       }
     }
 
@@ -286,174 +164,105 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function newQuestion() {
-      if (totalQuestions >= maxQuestions) {
-        showEndScreen();
-        return;
-      }
+    function showQuestion() {
+      clearInterval(timer);
+      const q = questions[currentIndex];
+      document.getElementById('question').innerText = `Q${currentIndex + 1}: ${q.n1} ${q.op} ${q.n2} = ?`;
+      document.getElementById('answer').value = q.user || '';
+      document.getElementById('score').innerText = `Question ${currentIndex + 1} of 10`;
 
-      const operators = getOperatorsByDifficulty();
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      document.getElementById('prevBtn').style.display = timerMode === 'total' && currentIndex > 0 ? 'inline-block' : 'none';
+      document.getElementById('nextBtn').style.display = currentIndex < 9 ? 'inline-block' : 'none';
+      document.getElementById('submitBtn').style.display = timerMode === 'total' && currentIndex === 9 ? 'inline-block' : 'none';
 
-      [num1, num2] = generateNumbers(operator);
-
-      // No negative result for subtraction
-      if (operator === "-") {
-        if (num1 < num2) [num1, num2] = [num2, num1];
-      }
-
-      // Division without decimals, no divide by zero, only even divisions
-      if (operator === "/") {
-        num2 = rand(1, 12);
-        while (num2 === 0) {
-          num2 = rand(1, 12);
-        }
-        const maxMultiplier = Math.floor(100 / num2);
-        const multiplier = rand(1, maxMultiplier);
-        num1 = num2 * multiplier;
-      }
-
-      document.getElementById("question").innerText = `What is ${num1} ${operator} ${num2}?`;
-      document.getElementById("result").innerText = "";
-      document.getElementById("answer").value = "";
-      document.getElementById("answer").focus();
-      resetTimer();
+      if (timerMode === 'per' && currentIndex < 10) startPerTimer();
     }
 
-    function checkAnswer() {
-      clearInterval(timer);
-      const userAnsRaw = document.getElementById("answer").value.trim();
-      if (userAnsRaw === "") {
-        alert("Please enter an answer!");
-        return;
-      }
-      const userAns = parseFloat(userAnsRaw);
-
-      let correctAns;
-      switch (operator) {
-        case "+":
-          correctAns = num1 + num2;
-          break;
-        case "-":
-          correctAns = num1 - num2;
-          break;
-        case "*":
-          correctAns = num1 * num2;
-          break;
-        case "/":
-          correctAns = num1 / num2;
-          break;
-      }
-
-      totalQuestions++;
-
-      // Save question history for review later
-      history.push({
-        question: `${num1} ${operator} ${num2}`,
-        userAnswer: userAnsRaw,
-        correctAnswer: correctAns,
-        correct: Math.abs(userAns - correctAns) < 0.01,
-      });
-
-      if (Math.abs(userAns - correctAns) < 0.01) {
-        correctCount++;
-        document.getElementById("result").innerText = "✅ Correct!";
-        document.getElementById("correctSound").play();
-      } else {
-        document.getElementById("result").innerText = `❌ Wrong. Answer is ${correctAns}`;
-        document.getElementById("wrongSound").play();
-      }
-
-      document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
-
-      if (totalQuestions < maxQuestions) {
-        setTimeout(newQuestion, 1200);
-      } else {
-        setTimeout(showEndScreen, 1200);
-      }
-    }
-
-    function resetTimer() {
-      clearInterval(timer);
-      timeLeft = 15;
-      document.getElementById("time").innerText = timeLeft;
+    function startPerTimer() {
+      let t = timePerQuestion;
+      document.getElementById('time').innerText = t;
       timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("time").innerText = timeLeft;
-        if (timeLeft <= 0) {
+        t--;
+        document.getElementById('time').innerText = t;
+        if (t <= 0) {
           clearInterval(timer);
-          document.getElementById("result").innerText = "⏰ Time's up!";
-          document.getElementById("wrongSound").play();
-          totalQuestions++;
-
-          // Mark unanswered question in history
-          history.push({
-            question: `${num1} ${operator} ${num2}`,
-            userAnswer: "No Answer",
-            correctAnswer: (function() {
-              switch(operator) {
-                case "+": return num1 + num2;
-                case "-": return num1 - num2;
-                case "*": return num1 * num2;
-                case "/": return num1 / num2;
-              }
-            })(),
-            correct: false,
-          });
-
-          document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
-          if (totalQuestions < maxQuestions) {
-            setTimeout(newQuestion, 1200);
+          if (currentIndex < 9) {
+            nextQuestion();
           } else {
-            setTimeout(showEndScreen, 1200);
+            submitGame();
           }
         }
       }, 1000);
     }
 
-    function showEndScreen() {
-      clearInterval(timer);
-      document.getElementById("game-box").style.display = "none";
-      document.getElementById("end-box").style.display = "block";
-      document.getElementById("final-score").innerText = `Your final score: ${correctCount} out of ${totalQuestions}`;
-
-      // Update leaderboard
-      leaderboard.push({ name: playerName, score: correctCount });
-      updateLeaderboard();
-
-      // Fill review list
-      const tbody = document.getElementById("review-body");
-      tbody.innerHTML = "";
-      history.forEach((item, index) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${item.question}</td>
-          <td>${item.userAnswer}</td>
-          <td>${item.correctAnswer}</td>
-        `;
-        if (item.correct) {
-          tr.style.backgroundColor = "#d4edda"; // light green
-        } else {
-          tr.style.backgroundColor = "#f8d7da"; // light red
+    function startTotalTimer() {
+      gameTimeLeft = totalGameTime;
+      document.getElementById('time').innerText = gameTimeLeft;
+      timer = setInterval(() => {
+        gameTimeLeft--;
+        document.getElementById('time').innerText = gameTimeLeft;
+        if (gameTimeLeft <= 0) {
+          clearInterval(timer);
+          submitGame();
         }
-        tbody.appendChild(tr);
-      });
+      }, 1000);
     }
 
-    function restartGame() {
-      correctCount = 0;
-      totalQuestions = 0;
-      history = [];
-      document.getElementById("score").innerText = `Score: 0/0`;
-      document.getElementById("end-box").style.display = "none";
-      document.getElementById("game-box").style.display = "block";
-      document.getElementById("answer").focus();
-      newQuestion();
+    function nextQuestion() {
+      questions[currentIndex].user = document.getElementById('answer').value.trim();
+      if (currentIndex < 9) currentIndex++;
+      showQuestion();
+    }
+
+    function previousQuestion() {
+      questions[currentIndex].user = document.getElementById('answer').value.trim();
+      if (currentIndex > 0) currentIndex--;
+      showQuestion();
+    }
+
+    function submitGame() {
+      questions[currentIndex].user = document.getElementById('answer').value.trim();
+      clearInterval(timer);
+      let score = 0;
+      const name = document.getElementById('playerName').value;
+      const review = questions.map(q => {
+        let correct;
+        switch (q.op) {
+          case '+': correct = q.n1 + q.n2; break;
+          case '-': correct = q.n1 - q.n2; break;
+          case '*': correct = q.n1 * q.n2; break;
+          case '/': correct = q.n1 / q.n2; break;
+        }
+        const isCorrect = Math.abs(Number(q.user) - correct) < 0.01;
+        if (isCorrect) {
+          score++;
+          correctSound.play();
+        } else {
+          wrongSound.play();
+        }
+        return `${q.n1} ${q.op} ${q.n2} = ${correct} (You: ${q.user || 'N/A'}) - ${isCorrect ? '✅' : '❌'}`;
+      });
+
+      let currentTop = parseInt(localStorage.getItem('topScore') || '0');
+      if (score > currentTop) {
+        localStorage.setItem('topScore', score);
+        localStorage.setItem('topScorer', name);
+        document.getElementById('topScorer').innerText = name;
+      }
+
+      document.getElementById('game-box').style.display = 'none';
+      document.getElementById('end-box').style.display = 'block';
+      document.getElementById('final-score').innerHTML = `<strong>Score:</strong> ${score}/10<br><br>${review.join('<br>')}`;
     }
 
     function endGame() {
-      location.reload();
+      clearInterval(timer);
+      if (confirm('End game and lose progress?')) location.reload();
+    }
+
+    function returnToStart() {
+      document.getElementById('end-box').style.display = 'none';
+      document.getElementById('start-box').style.display = 'block';
     }
   </script>
 </body>
