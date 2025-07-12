@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Math Game</title>
   <style>
     body {
@@ -17,11 +17,12 @@
       margin-bottom: 10px;
     }
 
-    #game-box, #end-box {
+    #game-box,
+    #end-box {
       background: #ffffffdd;
       padding: 25px;
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       max-width: 450px;
       margin: auto;
       transition: all 0.3s ease-in-out;
@@ -33,7 +34,7 @@
       font-weight: bold;
     }
 
-    input[type="number"] {
+    input[type='number'] {
       padding: 12px;
       font-size: 1.3em;
       width: 120px;
@@ -57,7 +58,9 @@
       background-color: #2980b9;
     }
 
-    #result, #score, #timer {
+    #result,
+    #score,
+    #timer {
       margin-top: 20px;
       font-size: 1.2em;
     }
@@ -72,10 +75,6 @@
 
     .btn-group button {
       margin: 8px;
-    }
-
-    .difficulty-select {
-      margin: 20px 0;
     }
 
     select {
@@ -106,17 +105,19 @@
       <option value="medium">Medium (+, -, ×)</option>
       <option value="hard">Hard (+, -, ×, ÷)</option>
     </select>
-    <br>
+    <br />
     <button onclick="startGame()">Start Game</button>
   </div>
 
-  <div id="game-box" style="display:none;">
+  <div id="game-box" style="display: none;">
     <div id="question"></div>
     <input type="number" id="answer" />
     <button onclick="checkAnswer()">Submit</button>
     <div id="result"></div>
     <div id="score">Score: 0/0</div>
-    <div id="timer">⏱ Time left: <span id="time">15</span> sec</div>
+    <div id="timer">
+      ⏱ Time left: <span id="time">15</span> sec
+    </div>
   </div>
 
   <div id="end-box">
@@ -129,8 +130,14 @@
   </div>
 
   <!-- Sound Effects -->
-  <audio id="correctSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
-  <audio id="wrongSound" src="https://www.soundjay.com/button/beep-10.wav"></audio>
+  <audio
+    id="correctSound"
+    src="https://www.soundjay.com/button/beep-07.wav"
+  ></audio>
+  <audio
+    id="wrongSound"
+    src="https://www.soundjay.com/button/beep-10.wav"
+  ></audio>
 
   <script>
     let num1, num2, operator;
@@ -138,7 +145,7 @@
     let totalQuestions = 0;
     let timeLeft = 15;
     let timer;
-    let maxQuestions = 10;
+    const maxQuestions = 10;
     let difficulty = "easy";
 
     function startGame() {
@@ -149,16 +156,18 @@
       totalQuestions = 0;
       document.getElementById("score").innerText = "Score: 0/0";
       newQuestion();
+      document.getElementById("answer").focus();
+      console.log("Game started with difficulty:", difficulty);
     }
 
     function getOperatorsByDifficulty() {
-      if (difficulty === "easy") return ['+', '-'];
-      if (difficulty === "medium") return ['+', '-', '*'];
-      return ['+', '-', '*', '/'];
+      if (difficulty === "easy") return ["+", "-"];
+      if (difficulty === "medium") return ["+", "-", "*"];
+      return ["+", "-", "*", "/"];
     }
 
     function generateNumbers(op) {
-      if (op === '*') {
+      if (op === "*") {
         return [rand(1, 12), rand(1, 12)];
       } else {
         return [rand(1, 100), rand(1, 100)];
@@ -180,28 +189,107 @@
 
       [num1, num2] = generateNumbers(operator);
 
-      if (operator === '-') {
+      // No negative result for subtraction
+      if (operator === "-") {
         if (num1 < num2) [num1, num2] = [num2, num1];
       }
 
-      if (operator === '/') {
-        num2 = rand(1, 12); // small divisor
-        num1 = num2 * rand(1, Math.floor(100 / num2)); // divisible & ≤100
+      // Division without decimals, no divide by zero, only even divisions
+      if (operator === "/") {
+        num2 = rand(1, 12);
+        while (num2 === 0) {
+          num2 = rand(1, 12);
+        }
+        const maxMultiplier = Math.floor(100 / num2);
+        const multiplier = rand(1, maxMultiplier);
+        num1 = num2 * multiplier;
       }
 
-      document.getElementById('question').innerText = `What is ${num1} ${operator} ${num2}?`;
-      document.getElementById('result').innerText = '';
-      document.getElementById('answer').value = '';
-      document.getElementById('answer').focus();
+      document.getElementById("question").innerText = `What is ${num1} ${operator} ${num2}?`;
+      document.getElementById("result").innerText = "";
+      document.getElementById("answer").value = "";
+      document.getElementById("answer").focus();
       resetTimer();
     }
 
     function checkAnswer() {
       clearInterval(timer);
-      const userAns = parseFloat(document.getElementById('answer').value);
+      const userAns = parseFloat(document.getElementById("answer").value);
       let correctAns;
       switch (operator) {
-        case '+': correctAns = num1 + num2; break;
-        case '-': correctAns = num1 - num2; break;
-        case '*': correctAns = num1 * num2; break;
-        case '/': correctAns = n
+        case "+":
+          correctAns = num1 + num2;
+          break;
+        case "-":
+          correctAns = num1 - num2;
+          break;
+        case "*":
+          correctAns = num1 * num2;
+          break;
+        case "/":
+          correctAns = num1 / num2;
+          break;
+      }
+
+      totalQuestions++;
+      if (Math.abs(userAns - correctAns) < 0.01) {
+        correctCount++;
+        document.getElementById("result").innerText = "✅ Correct!";
+        document.getElementById("correctSound").play();
+      } else {
+        document.getElementById("result").innerText = `❌ Wrong. Answer is ${correctAns}`;
+        document.getElementById("wrongSound").play();
+      }
+
+      document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
+      if (totalQuestions < maxQuestions) {
+        setTimeout(newQuestion, 1200);
+      } else {
+        setTimeout(showEndScreen, 1200);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = 15;
+      document.getElementById("time").innerText = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("time").innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          document.getElementById("result").innerText = "⏰ Time's up!";
+          document.getElementById("wrongSound").play();
+          totalQuestions++;
+          document.getElementById("score").innerText = `Score: ${correctCount}/${totalQuestions}`;
+          if (totalQuestions < maxQuestions) {
+            setTimeout(newQuestion, 1200);
+          } else {
+            setTimeout(showEndScreen, 1200);
+          }
+        }
+      }, 1000);
+    }
+
+    function showEndScreen() {
+      clearInterval(timer);
+      document.getElementById("game-box").style.display = "none";
+      document.getElementById("end-box").style.display = "block";
+      document.getElementById("final-score").innerText = `Your final score: ${correctCount} out of ${totalQuestions}`;
+    }
+
+    function restartGame() {
+      correctCount = 0;
+      totalQuestions = 0;
+      document.getElementById("score").innerText = `Score: 0/0`;
+      document.getElementById("end-box").style.display = "none";
+      document.getElementById("game-box").style.display = "block";
+      newQuestion();
+    }
+
+    function endGame() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
