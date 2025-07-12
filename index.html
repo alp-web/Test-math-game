@@ -118,9 +118,26 @@
     <button onclick="location.reload()">Challenge Again</button>
     <button onclick="returnToStart()">Exit</button>
   </div>
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
-  <audio id="correctSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/correct.mp3"></audio>
-  <audio id="wrongSound" src="https://raw.githubusercontent.com/alp-web/Test-math-game/main/Wrong.mp3"></audio>
+<script>
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+
+  // Preload/unlock audio after user interaction
+  function unlockAudio() {
+    correctSound.play().then(() => correctSound.pause());
+    wrongSound.play().then(() => wrongSound.pause());
+  }
+
+  document.querySelector('button').addEventListener('click', () => {
+    unlockAudio();
+    // For demo: play correct sound on click
+    correctSound.play();
+  });
+</script>
+<button>Test Sound</button>
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
