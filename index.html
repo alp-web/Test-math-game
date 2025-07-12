@@ -1,52 +1,138 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Math Game</title>
-</head>
-<body>
-  <h1>Simple Math Game</h1>
-  <div id="question"></div>
-  <input type="number" id="answer" />
-  <button onclick="checkAnswer()">Submit</button>
-  <div id="result"></div>
+<script>
+  let num1, num2, operator;
+  let correctCount = 0;
+  let totalQuestions = 0;
+  let timeLeft = 15;
+  let timer;
+  let maxQuestions = 10;
+  let difficulty = "easy";
 
-  <script>
-    let num1, num2, operator;
-
-    function newQuestion() {
-      num1 = Math.floor(Math.random() * 10);
-      num2 = Math.floor(Math.random() * 10);
-      const operators = ['+', '-', '*', '/'];
-      operator = operators[Math.floor(Math.random() * operators.length)];
-
-      if (operator === '/') {
-        num1 = num1 * num2;
-      }
-
-      document.getElementById('question').innerText = `What is ${num1} ${operator} ${num2}?`;
-    }
-
-    function checkAnswer() {
-      const userAns = parseFloat(document.getElementById('answer').value);
-      let correctAns;
-      switch (operator) {
-        case '+': correctAns = num1 + num2; break;
-        case '-': correctAns = num1 - num2; break;
-        case '*': correctAns = num1 * num2; break;
-        case '/': correctAns = num1 / num2; break;
-      }
-
-      if (userAns === correctAns) {
-        document.getElementById('result').innerText = "✅ Correct!";
-      } else {
-        document.getElementById('result').innerText = `❌ Wrong. Answer is ${correctAns}`;
-      }
-
-      newQuestion();
-      document.getElementById('answer').value = '';
-    }
-
+  function startGame() {
+    difficulty = document.getElementById("difficulty").value;
+    document.getElementById("difficulty-box").style.display = "none";
+    document.getElementById("game-box").style.display = "block";
+    correctCount = 0;
+    totalQuestions = 0;
+    document.getElementById("score").innerText = "Score: 0/0";
     newQuestion();
-  </script>
-</body>
-</html>
+  }
+
+  function getOperatorsByDifficulty() {
+    if (difficulty === "easy") return ['+', '-'];
+    if (difficulty === "medium") return ['+', '-', '*'];
+    return ['+', '-', '*', '/'];
+  }
+
+  function generateNumbers(op) {
+    if (op === '*') {
+      return [rand(1, 12), rand(1, 12)];
+    } else {
+      return [rand(1, 100), rand(1, 100)];
+    }
+  }
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function newQuestion() {
+    if (totalQuestions >= maxQuestions) {
+      showEndScreen();
+      return;
+    }
+
+    const operators = getOperatorsByDifficulty();
+    operator = operators[Math.floor(Math.random() * operators.length)];
+
+    [num1, num2] = generateNumbers(operator);
+
+    // Custom logic for subtraction (no negatives)
+    if (operator === '-' && num1 < num2) {
+      [num1, num2] = [num2, num1];
+    }
+
+    // Custom logic for division (no decimal, no zero)
+    if (operator === '/') {
+      num2 = rand(1, 12); // small divisor for good division
+      num1 = num2 * rand(1, Math.floor(100 / num2)); // make divisible and ≤ 100
+    }
+
+    document.getElementById('question').innerText = `What is ${num1} ${operator} ${num2}?`;
+    document.getElementById('result').innerText = '';
+    document.getElementById('answer').value = '';
+    document.getElementById('answer').focus();
+    resetTimer();
+  }
+
+  function checkAnswer() {
+    clearInterval(timer);
+    const userAns = parseFloat(document.getElementById('answer').value);
+    let correctAns;
+    switch (operator) {
+      case '+': correctAns = num1 + num2; break;
+      case '-': correctAns = num1 - num2; break;
+      case '*': correctAns = num1 * num2; break;
+      case '/': correctAns = num1 / num2; break;
+    }
+
+    totalQuestions++;
+    if (Math.abs(userAns - correctAns) < 0.01) {
+      correctCount++;
+      document.getElementById('result').innerText = "✅ Correct!";
+      document.getElementById('correctSound').play();
+    } else {
+      document.getElementById('result').innerText = `❌ Wrong. Answer is ${correctAns}`;
+      document.getElementById('wrongSound').play();
+    }
+
+    document.getElementById('score').innerText = `Score: ${correctCount}/${totalQuestions}`;
+    if (totalQuestions < maxQuestions) {
+      setTimeout(newQuestion, 1200);
+    } else {
+      setTimeout(showEndScreen, 1200);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timeLeft = 15;
+    document.getElementById('time').innerText = timeLeft;
+    timer = setInterval(() => {
+      timeLeft--;
+      document.getElementById('time').innerText = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        document.getElementById('result').innerText = "⏰ Time's up!";
+        document.getElementById('wrongSound').play();
+        totalQuestions++;
+        document.getElementById('score').innerText = `Score: ${correctCount}/${totalQuestions}`;
+        if (totalQuestions < maxQuestions) {
+          setTimeout(newQuestion, 1200);
+        } else {
+          setTimeout(showEndScreen, 1200);
+        }
+      }
+    }, 1000);
+  }
+
+  function showEndScreen() {
+    clearInterval(timer);
+    document.getElementById('game-box').style.display = 'none';
+    document.getElementById('end-box').style.display = 'block';
+    document.getElementById('final-score').innerText =
+      `Your final score: ${correctCount} out of ${totalQuestions}`;
+  }
+
+  function restartGame() {
+    correctCount = 0;
+    totalQuestions = 0;
+    document.getElementById('score').innerText = `Score: 0/0`;
+    document.getElementById('end-box').style.display = 'none';
+    document.getElementById('game-box').style.display = 'block';
+    newQuestion();
+  }
+
+  function endGame() {
+    location.reload();
+  }
+</script>
