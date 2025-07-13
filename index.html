@@ -234,7 +234,8 @@
 
     function startTotalTimer() {
   let elapsedSeconds = 0;
-  document.getElementById('time').innerText = '0:00';
+  const timeElem = document.getElementById('time');
+  timeElem.innerText = '0:00';  // initialize display
 
   timer = setInterval(() => {
     elapsedSeconds++;
