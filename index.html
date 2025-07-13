@@ -85,6 +85,7 @@
   <div id="leaderboard">🏆 Top Scorer: <span id="topScorer">N/A</span></div>
 
   <div id="start-box" class="box">
+    <img src="https://cdn.pixabay.com/photo/2017/01/31/20/13/math-2029343_960_720.png" alt="Math Fun" style="width: 100%; max-width: 300px; margin-bottom: 15px;" />
     <input type="text" id="playerName" placeholder="Enter your name" />
     <select id="difficulty">
       <option value="easy">Easy (+, -)</option>
@@ -123,6 +124,7 @@
   <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
   <script>
+    
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
     let timePerQuestion = 60, totalGameTime = 150, gameTimeLeft = 150;
 
@@ -133,6 +135,19 @@
 
     const topScorer = localStorage.getItem('topScorer') || 'N/A';
     document.getElementById('topScorer').innerText = topScorer;
+const bgMusic = document.getElementById('bgMusic');
+let musicPlaying = false;
+
+function toggleMusic() {
+  if (!musicPlaying) {
+    bgMusic.volume = 0.3; // Set a gentle volume
+    bgMusic.play();
+    musicPlaying = true;
+  } else {
+    bgMusic.pause();
+    musicPlaying = false;
+  }
+}
 
     function startGame() {
       // Unlock audio on user interaction
@@ -149,6 +164,7 @@
       document.getElementById('game-box').style.display = 'block';
       if (timerMode === 'total') startTotalTimer();
       showQuestion();
+      toggleMusic(); // auto-starts background music when the game begins
     }
 
     function generateQuestions(level) {
@@ -213,7 +229,7 @@
         }
       }, 1000);
     }
-
+<button onclick="toggleMusic()">🎵 Music On/Off</button>
     function nextQuestion() {
       questions[currentIndex].user = document.getElementById('answer').value.trim();
       if (currentIndex < 9) currentIndex++;
@@ -270,6 +286,11 @@
       document.getElementById('end-box').style.display = 'none';
       document.getElementById('start-box').style.display = 'block';
     }
+    <audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/01/audio_93cd02b8e6.mp3?filename=slow-piano-ambient-110997.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
   </script>
 </body>
 </html>
