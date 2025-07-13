@@ -85,6 +85,11 @@
   <div id="leaderboard">🏆 Top Scorer: <span id="topScorer">N/A</span></div>
 
   <div id="start-box" class="box">
+    <img 
+  src="https://cdn.pixabay.com/photo/2017/01/31/20/13/math-2029343_960_720.png" 
+  alt="Math Fun" 
+  style="width: 100%; max-width: 250px; margin-bottom: 15px; border-radius: 12px;" 
+/>
     <img src="https://cdn.pixabay.com/photo/2017/01/31/20/13/math-2029343_960_720.png" alt="Math Fun" style="width: 100%; max-width: 300px; margin-bottom: 15px;" />
     <input type="text" id="playerName" placeholder="Enter your name" />
     <select id="difficulty">
@@ -122,50 +127,179 @@
   <!-- Working CORS-friendly audio from Google -->
   <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
   <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2023/01/04/audio_841d0e9e19.mp3?filename=gentle-piano-loop-132858.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 
-  <script>
-    
-    let questions = [], currentIndex = 0, timer, timerMode = 'per';
-    let timePerQuestion = 60, totalGameTime = 150, gameTimeLeft = 150;
+<script>
+  let questions = [], currentIndex = 0, timer, timerMode = 'per';
+  let timePerQuestion = 60, totalGameTime = 150, gameTimeLeft = 150;
 
-    const correctSound = document.getElementById('correctSound');
-    const wrongSound = document.getElementById('wrongSound');
-    correctSound.volume = 1.0;
-    wrongSound.volume = 1.0;
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const bgMusic = document.getElementById('bgMusic');
 
-    const topScorer = localStorage.getItem('topScorer') || 'N/A';
-    document.getElementById('topScorer').innerText = topScorer;
-const bgMusic = document.getElementById('bgMusic');
-let musicPlaying = false;
+  if (correctSound) correctSound.volume = 1.0;
+  if (wrongSound) wrongSound.volume = 1.0;
 
-function toggleMusic() {
-  if (!musicPlaying) {
-    bgMusic.volume = 0.3; // Set a gentle volume
-    bgMusic.play();
-    musicPlaying = true;
-  } else {
-    bgMusic.pause();
-    musicPlaying = false;
-  }
-}
+  let musicPlaying = false;
 
-    function startGame() {
-      // Unlock audio on user interaction
-      correctSound.play().then(() => correctSound.pause());
-      wrongSound.play().then(() => wrongSound.pause());
-
-      questions = [];
-      currentIndex = 0;
-      const name = document.getElementById('playerName').value.trim();
-      if (!name) return alert('Please enter your name.');
-      timerMode = document.getElementById('timerMode').value;
-      generateQuestions(document.getElementById('difficulty').value);
-      document.getElementById('start-box').style.display = 'none';
-      document.getElementById('game-box').style.display = 'block';
-      if (timerMode === 'total') startTotalTimer();
-      showQuestion();
-      toggleMusic(); // auto-starts background music when the game begins
+  function toggleMusic() {
+    if (!bgMusic) return;
+    if (!musicPlaying) {
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(e => console.warn("Music play failed", e));
+      musicPlaying = true;
+    } else {
+      bgMusic.pause();
+      musicPlaying = false;
     }
+  }
+
+  const topScorer = localStorage.getItem('topScorer') || 'N/A';
+  document.getElementById('topScorer').innerText = topScorer;
+
+  function startGame() {
+    if (correctSound) correctSound.play().then(() => correctSound.pause()).catch(() => {});
+    if (wrongSound) wrongSound.play().then(() => wrongSound.pause()).catch(() => {});
+    toggleMusic();
+
+    questions = [];
+    currentIndex = 0;
+    const name = document.getElementById('playerName').value.trim();
+    if (!name) return alert('Please enter your name.');
+
+    timerMode = document.getElementById('timerMode').value;
+    generateQuestions(document.getElementById('difficulty').value);
+
+    document.getElementById('start-box').style.display = 'none';
+    document.getElementById('game-box').style.display = 'block';
+
+    if (timerMode === 'total') startTotalTimer();
+    showQuestion();
+  }
+
+  function generateQuestions(level) {
+    const ops = level === 'easy' ? ['+', '-'] : level === 'medium' ? ['+', '-', '*'] : ['+', '-', '*', '/'];
+    for (let i = 0; i < 10; i++) {
+      let op = ops[Math.floor(Math.random() * ops.length)];
+      let n1 = op === '*' ? rand(1, 12) : rand(1, 100);
+      let n2 = rand(1, 100);
+      if (op === '-') [n1, n2] = n1 < n2 ? [n2, n1] : [n1, n2];
+      if (op === '/') {
+        n2 = rand(1, 12);
+        n1 = n2 * rand(1, 12);
+      }
+      questions.push({ n1, n2, op, user: '' });
+    }
+  }
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function showQuestion() {
+    clearInterval(timer);
+    const q = questions[currentIndex];
+    document.getElementById('question').innerText = `Q${currentIndex + 1}: ${q.n1} ${q.op} ${q.n2} = ?`;
+    document.getElementById('answer').value = q.user || '';
+    document.getElementById('score').innerText = `Question ${currentIndex + 1} of 10`;
+
+    document.getElementById('prevBtn').style.display = timerMode === 'total' && currentIndex > 0 ? 'inline-block' : 'none';
+    document.getElementById('nextBtn').style.display = currentIndex < 9 ? 'inline-block' : 'none';
+    document.getElementById('submitBtn').style.display = timerMode === 'total' && currentIndex === 9 ? 'inline-block' : 'none';
+
+    if (timerMode === 'per' && currentIndex < 10) startPerTimer();
+  }
+
+  function startPerTimer() {
+    let t = timePerQuestion;
+    document.getElementById('time').innerText = t;
+    timer = setInterval(() => {
+      t--;
+      document.getElementById('time').innerText = t;
+      if (t <= 0) {
+        clearInterval(timer);
+        if (currentIndex < 9) {
+          nextQuestion();
+        } else {
+          submitGame();
+        }
+      }
+    }, 1000);
+  }
+
+  function startTotalTimer() {
+    gameTimeLeft = totalGameTime;
+    document.getElementById('time').innerText = gameTimeLeft;
+    timer = setInterval(() => {
+      gameTimeLeft--;
+      document.getElementById('time').innerText = gameTimeLeft;
+      if (gameTimeLeft <= 0) {
+        clearInterval(timer);
+        submitGame();
+      }
+    }, 1000);
+  }
+
+  function nextQuestion() {
+    questions[currentIndex].user = document.getElementById('answer').value.trim();
+    if (currentIndex < 9) currentIndex++;
+    showQuestion();
+  }
+
+  function previousQuestion() {
+    questions[currentIndex].user = document.getElementById('answer').value.trim();
+    if (currentIndex > 0) currentIndex--;
+    showQuestion();
+  }
+
+  function submitGame() {
+    questions[currentIndex].user = document.getElementById('answer').value.trim();
+    clearInterval(timer);
+    let score = 0;
+    const name = document.getElementById('playerName').value;
+    const review = questions.map(q => {
+      let correct;
+      switch (q.op) {
+        case '+': correct = q.n1 + q.n2; break;
+        case '-': correct = q.n1 - q.n2; break;
+        case '*': correct = q.n1 * q.n2; break;
+        case '/': correct = q.n1 / q.n2; break;
+      }
+      const isCorrect = Math.abs(Number(q.user) - correct) < 0.01;
+      if (isCorrect) {
+        score++;
+        if (correctSound) correctSound.play();
+      } else {
+        if (wrongSound) wrongSound.play();
+      }
+      return `${q.n1} ${q.op} ${q.n2} = ${correct} (You: ${q.user || 'N/A'}) - ${isCorrect ? '✅' : '❌'}`;
+    });
+
+    let currentTop = parseInt(localStorage.getItem('topScore') || '0');
+    if (score > currentTop) {
+      localStorage.setItem('topScore', score);
+      localStorage.setItem('topScorer', name);
+      document.getElementById('topScorer').innerText = name;
+    }
+
+    document.getElementById('game-box').style.display = 'none';
+    document.getElementById('end-box').style.display = 'block';
+    document.getElementById('final-score').innerHTML = `<strong>Score:</strong> ${score}/10<br><br>${review.join('<br>')}`;
+  }
+
+  function endGame() {
+    clearInterval(timer);
+    if (confirm('End game and lose progress?')) location.reload();
+  }
+
+  function returnToStart() {
+    document.getElementById('end-box').style.display = 'none';
+    document.getElementById('start-box').style.display = 'block';
+  }
+</script>
 
     function generateQuestions(level) {
       const ops = level === 'easy' ? ['+', '-'] : level === 'medium' ? ['+', '-', '*'] : ['+', '-', '*', '/'];
