@@ -16,9 +16,9 @@
     }
 
     @keyframes gradientBG {
-      0% { background-position: 100% 100%; }
-      50% { background-position: 100% 100%; }
-      100% { background-position: 100% 100%; }
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .box {
@@ -92,7 +92,7 @@
       <option value="hard">Hard (+, -, ×, ÷)</option>
     </select>
     <select id="timerMode">
-      <option value="per">Timer per Question (15s)</option>
+      <option value="per">Timer per Question (60s)</option>
       <option value="total">Timer for Full Game (150s)</option>
     </select>
     <button onclick="startGame()">Start Game</button>
@@ -101,7 +101,7 @@
   <div id="game-box" class="box">
     <div id="question"></div>
     <input type="number" id="answer" placeholder="Your answer" />
-    <div id="timer">Time left: <span id="time">15</span>s</div>
+    <div id="timer">Time left: <span id="time">60</span>s</div>
     <div>
       <button id="prevBtn" onclick="previousQuestion()">Previous</button>
       <button id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -126,7 +126,7 @@
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
-    let timePerQuestion = 15, totalGameTime = 150, gameTimeLeft = 150;
+    let timePerQuestion = 60, totalGameTime = 150, gameTimeLeft = 150;
     let startTime;
 
     const correctSound = document.getElementById('correctSound');
@@ -163,6 +163,8 @@
     }
 
     function startGame() {
+      clearInterval(timer); // Clear any running timer first
+  // rest of your code...
       correctSound.play().then(() => correctSound.pause()).catch(() => {});
       wrongSound.play().then(() => wrongSound.pause()).catch(() => {});
       questions = [];
@@ -235,6 +237,7 @@
       document.getElementById('time').innerText = gameTimeLeft;
       timer = setInterval(() => {
         gameTimeLeft--;
+        console.log('Time left:', gameTimeLeft); // DEBUG
         document.getElementById('time').innerText = gameTimeLeft;
         if (gameTimeLeft <= 0) {
           clearInterval(timer);
