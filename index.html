@@ -60,7 +60,7 @@
     }
 
     #question {
-      font-size: 2.5em;
+      font-size: 2.0em;
       margin: 20px 0;
     }
 
@@ -233,18 +233,17 @@
     }
 
     function startTotalTimer() {
-      gameTimeLeft = totalGameTime;
-      document.getElementById('time').innerText = gameTimeLeft;
-      timer = setInterval(() => {
-        gameTimeLeft--;
-        console.log('Time left:', gameTimeLeft); // DEBUG
-        document.getElementById('time').innerText = gameTimeLeft;
-        if (gameTimeLeft <= 0) {
-          clearInterval(timer);
-          submitGame();
-        }
-      }, 1000);
-    }
+  let elapsedSeconds = 0;
+  document.getElementById('time').innerText = '0:00';
+
+  timer = setInterval(() => {
+    elapsedSeconds++;
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+    const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+    document.getElementById('time').innerText = `${minutes}:${formattedSeconds}`;
+  }, 1000);
+}
 
     function nextQuestion() {
       questions[currentIndex].user = document.getElementById('answer').value.trim();
