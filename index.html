@@ -81,7 +81,7 @@
   </style>
 </head>
 <body>
-  <h1>🧠 Smart Math Game</h1>
+  <h1>🧠 Smart Math Game[Created By Melaku]</h1>
   <div id="leaderboard">🏆 Top Scorer: <span id="topScorer">N/A</span></div>
 
   <div id="start-box" class="box">
@@ -92,7 +92,7 @@
       <option value="hard">Hard (+, -, ×, ÷)</option>
     </select>
     <select id="timerMode">
-      <option value="per">Timer per Question (15s)</option>
+      <option value="per">Timer per Question (60s)</option>
       <option value="total">Timer for Full Game (150s)</option>
     </select>
     <button onclick="startGame()">Start Game</button>
@@ -101,7 +101,7 @@
   <div id="game-box" class="box">
     <div id="question"></div>
     <input type="number" id="answer" placeholder="Your answer" />
-    <div id="timer">Time left: <span id="time">15</span>s</div>
+    <div id="timer">Time left: <span id="time">60</span>s</div>
     <div>
       <button id="prevBtn" onclick="previousQuestion()">Previous</button>
       <button id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -124,7 +124,7 @@
 
   <script>
     let questions = [], currentIndex = 0, timer, timerMode = 'per';
-    let timePerQuestion = 15, totalGameTime = 150, gameTimeLeft = 150;
+    let timePerQuestion = 60, totalGameTime = 150, gameTimeLeft = 150;
 
     const correctSound = document.getElementById('correctSound');
     const wrongSound = document.getElementById('wrongSound');
@@ -246,7 +246,7 @@
         } else {
           wrongSound.play();
         }
-        return `${q.n1} ${q.op} ${q.n2} = ${correct} (You: ${q.user || 'N/A'}) - ${isCorrect ? '✅' : '❌'}`;
+        return `${q.n1} ${q.op} ${q.n2} = ${correct} (You: ${q.user || 'N/A'}) - ${isCorrect ? '✅' : 'Try Agin'}`;
       });
 
       let currentTop = parseInt(localStorage.getItem('topScore') || '0');
